@@ -10,6 +10,10 @@ controller_manager:
 
 uf850_traj_controller:
   ros__parameters:
+    # MoveIt Task Constructor stitches Cartesian + free-space sub-trajectories whose merged endpoint
+    # can carry a tiny non-zero velocity; without this the JTC rejects the goal ("Velocity of last
+    # trajectory point ... is not zero"). Required for executing MTC solutions. (uf850 Phase-1.)
+    allow_nonzero_velocity_at_trajectory_end: true
     command_interfaces:
       - position
       - velocity

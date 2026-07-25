@@ -7,6 +7,9 @@ controller_manager:
 # only for fake control
 uf850_gripper_traj_controller:
   ros__parameters:
+    # allow MTC-stitched gripper sub-trajectories that end with a tiny non-zero velocity (see the arm
+    # controller note); required for executing MTC solutions. (uf850 Phase-1.)
+    allow_nonzero_velocity_at_trajectory_end: true
     command_interfaces:
       - position
     state_interfaces:
