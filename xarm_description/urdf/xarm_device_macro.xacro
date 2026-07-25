@@ -42,6 +42,7 @@
     mesh_suffix:='stl' 
     kinematics_suffix:=''
     gripper_version:='G1'
+    add_mimic_joint_plugin:=true
     "
     > 
 
@@ -256,7 +257,7 @@
         <xacro:include filename="$(find xarm_description)/urdf/gripper/xarm_gripper_macro.xacro" />
         <xacro:xarm_gripper_macro prefix="${prefix}" attach_to="${prefix}link_eef" 
           ros2_control_plugin="${ros2_control_plugin}" dof="${dof}" hard_interface="${hard_interface}" 
-          gripper_version="${gripper_version}" />
+          gripper_version="${gripper_version}" add_mimic_joint_plugin="${add_mimic_joint_plugin}" />
       </xacro:unless>
     </xacro:if>
 

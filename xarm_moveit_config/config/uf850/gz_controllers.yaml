@@ -1,0 +1,21 @@
+# MoveIt -> controller ROUTING for the uf850 driven by gz_ros2_control (Gazebo Harmonic).
+#
+# This is not a controller config; it tells MoveIt which action to send an executed trajectory to.
+# Identical to controllers.yaml for the ARM — the difference is the gripper (see
+# ../uf850_gripper/gz_controllers.yaml): in Gazebo the gripper is a JointTrajectoryController,
+# whereas on real hardware it is the firmware's GripperCommand action. Kept as its own file so the
+# Gazebo path never depends on `fake_controllers.yaml` (whose names only coincide by accident).
+controller_names:
+  - uf850_traj_controller
+
+uf850_traj_controller:
+  action_ns: follow_joint_trajectory
+  type: FollowJointTrajectory
+  default: true
+  joints:
+    - joint1
+    - joint2
+    - joint3
+    - joint4
+    - joint5
+    - joint6

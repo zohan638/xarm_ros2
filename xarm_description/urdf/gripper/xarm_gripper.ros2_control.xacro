@@ -13,7 +13,16 @@
           <param name="min">-3.14</param>
           <param name="max">3.14</param>
         </command_interface>
-        <state_interface name="position"/>
+        <!-- initial_value 0.02, not the implicit 0: `drive_joint`'s lower joint limit IS 0, so
+             starting the sim at 0 parks the joint on its hard stop and a physics engine jitters it a
+             fraction of a milliradian NEGATIVE. MoveIt/MTC then see an out-of-bounds start state and
+             every gripper MoveTo fails with "Start state is out of bounds!" before the robot has
+             done anything. 0.02 rad is ~1 mm of jaw travel and matches the SRDF 'open' pose, so the
+             gripper simply boots where 'open' already puts it. The non-sim hardware plugins read a
+             real encoder and ignore this. -->
+        <state_interface name="position">
+          <param name="initial_value">0.02</param>
+        </state_interface>
         <state_interface name="velocity"/>
         <!-- <state_interface name="effort"/> -->
       </joint>

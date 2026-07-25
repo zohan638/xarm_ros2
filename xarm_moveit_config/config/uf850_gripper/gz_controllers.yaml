@@ -1,0 +1,16 @@
+# MoveIt -> controller ROUTING for the uf850's xarm_gripper under gz_ros2_control (Gazebo Harmonic).
+#
+# In Gazebo the gripper is driven by a JointTrajectoryController on `drive_joint`
+# (uf850_cell/config/uf850_cell_controllers.yaml), so MoveIt must send FollowJointTrajectory — NOT
+# the GripperCommand action of controllers.yaml, which is the real firmware gripper interface and
+# does not exist in sim. Same shape as fake_controllers.yaml; a separate file so the Gazebo path is
+# explicit rather than borrowing the fake one.
+controller_names:
+  - uf850_gripper_traj_controller
+
+uf850_gripper_traj_controller:
+  action_ns: follow_joint_trajectory
+  type: FollowJointTrajectory
+  default: true
+  joints:
+    - drive_joint

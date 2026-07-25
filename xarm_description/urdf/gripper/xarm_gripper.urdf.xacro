@@ -60,6 +60,13 @@
       <child link="${prefix}left_outer_knuckle" />
       <axis xyz="1 0 0" />
       <limit lower="0" upper="0.85" effort="50" velocity="2" />
+      <!-- The only actuated gripper joint, and the only one in the arm's URDF with no <dynamics>
+           (every arm joint has damping 3.4-16.6 / friction 1.1-12.1). Undamped it HUNTS around its
+           setpoint in Gazebo by ~9e-4 rad, and MTC's Connect drops any goal whose joints outside the
+           planned group differ by more than a hardcoded 1e-4 — so an undamped gripper makes Pick
+           intermittently unplannable ("Deviation in joint drive_joint"). A real gripper's gearbox
+           and leadscrew are heavily damped, so modelling that is also just more truthful. -->
+      <dynamics damping="1.0" friction="0.5" />
     </joint>
     <link name="${prefix}left_finger">
       <inertial>
