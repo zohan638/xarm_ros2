@@ -69,8 +69,14 @@
         <link name="${prefix}link_tcp" />
         <joint name="${prefix}drive_joint" />
       </group>
+      <!-- 0.02, not 0. `drive_joint`'s lower joint limit IS 0, so an "open" of exactly 0 parks the
+           jaws on a hard stop, and a physics engine does not settle exactly on a hard stop: gz left
+           the measured joint a fraction of a milliradian NEGATIVE, MoveIt/MTC judged the state out
+           of bounds, and after the first ReturnHome every later gripper MoveTo failed with "Start
+           state is out of bounds!". 0.02 rad is ~1 mm of jaw travel, so the gripper is still fully
+           open for anything the cell handles, and the joint never rests against its limit. -->
       <group_state name="open" group="${prefix}uf850_gripper">
-        <joint name="${prefix}drive_joint" value="0" />
+        <joint name="${prefix}drive_joint" value="0.02" />
       </group_state>
       <group_state name="close" group="${prefix}uf850_gripper">
         <joint name="${prefix}drive_joint" value="0.85" />

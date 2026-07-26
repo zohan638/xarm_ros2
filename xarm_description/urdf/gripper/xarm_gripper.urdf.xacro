@@ -1,6 +1,17 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="xarm_gripper">
 
+  <!-- The gripper's fully-open pose IS its lower joint limit (SRDF group_state "open" = 0), so the
+       jaws come to rest against a hard stop. A physics engine does not stop exactly on a hard stop:
+       gz/bullet-featherstone settles a fraction of a milliradian past it (-4.0e-04 measured). MoveIt
+       and MTC then judge the whole robot state OUT OF BOUNDS, and every subsequent gripper MoveTo
+       fails with "Start state is out of bounds!" — so after the first ReturnHome the arm can never
+       pick again. Giving each gripper joint 5 mrad (~0.25 mm of jaw) of slack below zero absorbs
+       that without changing where the jaws actually stop, which is set by mesh contact, not by this
+       number. Applies to drive_joint AND its five <mimic> followers: MTC validates every joint in
+       the state, so widening only the driven one leaves the followers out of bounds. -->
+  <xacro:property name="gripper_eps" value="-0.005"/>
+
   <xacro:macro name="xarm_gripper_urdf" params="prefix:='' attach_to:='' attach_xyz:='0 0 0' attach_rpy:='0 0 0' gripper_version:='G1' ">
 
     <xacro:property name="name_suffix" value=""/>
@@ -59,7 +70,7 @@
       <parent link="${prefix}xarm_gripper_base_link" />
       <child link="${prefix}left_outer_knuckle" />
       <axis xyz="1 0 0" />
-      <limit lower="0" upper="0.85" effort="50" velocity="2" />
+      <limit lower="${gripper_eps}" upper="0.85" effort="50" velocity="2" />
       <!-- The only actuated gripper joint, and the only one in the arm's URDF with no <dynamics>
            (every arm joint has damping 3.4-16.6 / friction 1.1-12.1). Undamped it HUNTS around its
            setpoint in Gazebo by ~9e-4 rad, and MTC's Connect drops any goal whose joints outside the
@@ -91,7 +102,7 @@
       <parent link="${prefix}left_outer_knuckle" />
       <child link="${prefix}left_finger" />
       <axis xyz="-1 0 0" />
-      <limit lower="0" upper="0.85" effort="50" velocity="2" />
+      <limit lower="${gripper_eps}" upper="0.85" effort="50" velocity="2" />
       <mimic joint="${prefix}drive_joint" multiplier="1" offset="0" />
     </joint>
     <link name="${prefix}left_inner_knuckle">
@@ -117,7 +128,7 @@
       <parent link="${prefix}xarm_gripper_base_link" />
       <child link="${prefix}left_inner_knuckle" />
       <axis xyz="1 0 0" />
-      <limit lower="0" upper="0.85" effort="50" velocity="2" />
+      <limit lower="${gripper_eps}" upper="0.85" effort="50" velocity="2" />
       <mimic joint="${prefix}drive_joint" multiplier="1" offset="0" />
     </joint>
     <link name="${prefix}right_outer_knuckle">
@@ -143,7 +154,7 @@
       <parent link="${prefix}xarm_gripper_base_link" />
       <child link="${prefix}right_outer_knuckle" />
       <axis xyz="-1 0 0" />
-      <limit lower="0" upper="0.85" effort="50" velocity="2" />
+      <limit lower="${gripper_eps}" upper="0.85" effort="50" velocity="2" />
       <mimic joint="${prefix}drive_joint" multiplier="1" offset="0" />
     </joint>
     <link name="${prefix}right_finger">
@@ -169,7 +180,7 @@
       <parent link="${prefix}right_outer_knuckle" />
       <child link="${prefix}right_finger" />
       <axis xyz="1 0 0" />
-      <limit lower="0" upper="0.85" effort="50" velocity="2" />
+      <limit lower="${gripper_eps}" upper="0.85" effort="50" velocity="2" />
       <mimic joint="${prefix}drive_joint" multiplier="1" offset="0" />
     </joint>
     <link name="${prefix}right_inner_knuckle">
@@ -195,7 +206,7 @@
       <parent link="${prefix}xarm_gripper_base_link" />
       <child link="${prefix}right_inner_knuckle" />
       <axis xyz="-1 0 0" />
-      <limit lower="0" upper="0.85" effort="50" velocity="2" />
+      <limit lower="${gripper_eps}" upper="0.85" effort="50" velocity="2" />
       <mimic joint="${prefix}drive_joint" multiplier="1" offset="0" />
     </joint>
 
