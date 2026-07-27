@@ -78,6 +78,19 @@
       <group_state name="open" group="${prefix}uf850_gripper">
         <joint name="${prefix}drive_joint" value="0.02" />
       </group_state>
+      <!-- PREGRASP is deliberately a DIFFERENT value from 'open' (0.05 vs 0.02, ~3 mm wider jaws).
+           MTC's GenerateGraspPose normalises its generated scenes to this named pose EXACTLY, while
+           the arm-side interface state carries the MEASURED joint value; Connect then rejects the
+           pair if they differ by ~1e-4, which is exactly the size of gz's position-loop residual.
+           If the pre-grasp equalled the pose the gripper is already resting at, the task's "open
+           gripper" MoveTo would be a no-op whose end scene keeps the measured value and the mismatch
+           survives. Commanding a pose the gripper is never already at forces a real motion, whose
+           end scene IS the exact goal — so both sides of the Connect are exact and the deviation is
+           structurally zero. Everything that RELEASES (Place, Recover, ReturnHome) still targets
+           'open', so the gripper always rests at 0.02 and this is always a real move. -->
+      <group_state name="pregrasp" group="${prefix}uf850_gripper">
+        <joint name="${prefix}drive_joint" value="0.05" />
+      </group_state>
       <group_state name="close" group="${prefix}uf850_gripper">
         <joint name="${prefix}drive_joint" value="0.85" />
       </group_state>
