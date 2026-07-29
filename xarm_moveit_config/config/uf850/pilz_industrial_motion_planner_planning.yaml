@@ -1,0 +1,42 @@
+# Pilz industrial motion planner (PTP / LIN / CIRC) for the uf850.
+#
+# WHY THIS FILE EXISTS AT ALL. The plugin ships with ROS
+# (libpilz_industrial_motion_planner.so) and this package already carried
+# config/moveit_configs/pilz_industrial_motion_planner_planning.yaml — but
+# MoveItConfigsBuilder.planning_pipelines() DISCOVERS pipelines by globbing
+# `config/<robot>/ *_planning.yaml`, and config/uf850/ contained only
+# ompl_planning.yaml. So the pipeline list was ['ompl'], Pilz was never
+# instantiated, and every straight-line motion fell back to raw Cartesian
+# interpolation. The presence of this file is what puts Pilz in the list;
+# the shared config/moveit_configs/ file is then loaded underneath it and
+# to_moveit_configs() auto-loads pilz_cartesian_limits.yaml on top.
+#
+# LIN is the reason we care: a Cartesian trapezoidal velocity profile with
+# industrial semantics, and real blending through /sequence_move_group —
+# which is what ARCHITECTURE.md §10.1 designates for the suction approach,
+# shelf extraction, shelf insertion, table lowering and post-release retreat.
+
+planning_plugins:
+  - pilz_industrial_motion_planner/CommandPlanner
+
+# PTP is the safe default for a bare `plan()` with no planner_id; the demo
+# always names LIN explicitly for contact motion.
+default_planner_config: PTP
+
+request_adapters:
+  - default_planning_request_adapters/ResolveConstraintFrames
+  - default_planning_request_adapters/ValidateWorkspaceBounds
+  - default_planning_request_adapters/CheckStartStateBounds
+  - default_planning_request_adapters/CheckStartStateCollision
+
+# ⚠ NOTE the absence of AddTimeOptimalParameterization here, unlike the ompl
+# pipeline. That is deliberate and is the point of Pilz: it emits its own
+# time-parameterized trapezoidal profile, so re-parameterizing would discard
+# the very thing LIN is being used for.
+response_adapters:
+  - default_planning_response_adapters/ValidateSolution
+  - default_planning_response_adapters/DisplayMotionPath
+
+capabilities: >-
+  pilz_industrial_motion_planner/MoveGroupSequenceAction
+  pilz_industrial_motion_planner/MoveGroupSequenceService

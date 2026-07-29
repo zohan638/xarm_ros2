@@ -1,0 +1,25 @@
+# Cartesian limits for the Pilz planner on the uf850.
+#
+# Pilz REFUSES to plan a LIN without these — it is a hard precondition, not a
+# default, and the failure surfaces as a generic planner error rather than
+# "you forgot the limits". MoveItConfigsBuilder.to_moveit_configs() loads this
+# automatically once pilz_industrial_motion_planner is in the pipeline list,
+# falling back to config/moveit_configs/pilz_cartesian_limits.yaml if absent.
+#
+# These are the CEILING for the whole arm, not the demo's operating speed. The
+# shared default is 1.0 m/s / 2.25 m/s², which is aggressive for a 6-DOF arm
+# carrying a 0.39 kg can on a 250 mm cantilevered suction tool — the deepest
+# shelf slot has only 17.4 mm of measured clearance (docs/REACH-AND-STANDOFF.md
+# §9) and the side grasp is moment-limited (docs/SUCTION-EOAT.md §3.2). Per-
+# motion scaling (ShelfLaneConfig.insertion_speed_scale ≈ 0.10) reduces further
+# from here; this file only stops the ceiling being somewhere unreasonable.
+#
+# ⚠ UNVALIDATED (⊘). Nothing has yet measured the acceleration at which the
+# suction seal is lost — that is the D1 seal battery's job
+# (docs/SUCTION-EOAT.md §4.1), and its answer must come back into this file.
+
+cartesian_limits:
+  max_trans_vel: 0.5     # m/s   ⊘ half the shared default
+  max_trans_acc: 1.0     # m/s²  ⊘
+  max_trans_dec: -2.0    # m/s²  ⊘ must be negative; Pilz validates the sign
+  max_rot_vel: 1.0       # rad/s ⊘
